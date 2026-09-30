@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Course Registration System - Manage courses and student registrations" />
+  <title>Course Registration System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-glass: rgba(255, 255, 255, 0.04);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.3);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-primary: #6366f1;
+      --accent-secondary: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.1);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --radius: 12px;
+      --radius-lg: 16px;
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+      animation: bgShift 20s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    @keyframes bgShift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-5%, -5%) rotate(3deg); }
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      background: rgba(10, 14, 26, 0.8);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent-primary), #a78bfa);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 24px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent-secondary);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Main layout */
+    .main-container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 32px;
+      width: fit-content;
+    }
+
+    .tab-btn {
+      padding: 10px 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-primary);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section layout */
+    .section-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      border-color: var(--border-glow);
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-header h2 span {
+      font-size: 18px;
+    }
+
+    .card-body { padding: 24px; }
+
+    /* Form styles */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), #7c3aed);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 25px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-secondary {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    /* Table */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      vertical-align: middle;
+    }
+
+    tbody tr {
+      transition: var(--transition);
+    }
+
+    tbody tr:hover {
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    .code-badge {
+      display: inline-flex;
+      padding: 4px 10px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-secondary);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .credits-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--success-bg);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(20px);
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards;
+      box-shadow: var(--shadow-lg);
+      min-width: 280px;
+    }
+
+    .toast-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .toast-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .toast-info {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state .icon {
+      font-size: 40px;
+      margin-bottom: 14px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+    }
+
+    /* Loading */
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: var(--accent-secondary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .header { padding: 16px 20px; flex-direction: column; gap: 16px; }
+      .main-container { padding: 20px; }
+      .section-grid { grid-template-columns: 1fr; }
+      .header-stats { gap: 16px; }
+    }
+
+    /* Edit modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      width: 420px;
+      max-width: 90vw;
+      box-shadow: var(--shadow-lg);
+      animation: fadeIn 0.25s ease;
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">📚</div>
+      <div>
+        <h1>Course Registration System</h1>
+        <p>Manage courses &amp; student registrations</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-item">
+        <div class="stat-value" id="stat-courses">0</div>
+        <div class="stat-label">Courses</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="stat-registrations">0</div>
+        <div class="stat-label">Registrations</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <div class="main-container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-courses-btn" onclick="switchTab('courses')">📘 Courses</button>
+      <button class="tab-btn" id="tab-registrations-btn" onclick="switchTab('registrations')">🎓 Registrations</button>
+    </div>
+
+    <!-- Courses Tab -->
+    <div class="tab-content active" id="tab-courses">
+      <div class="section-grid">
+        <!-- Add Course Form -->
+        <div class="card">
+          <div class="card-header">
+            <h2><span>➕</span> Add New Course</h2>
+          </div>
+          <div class="card-body">
+            <form id="course-form" onsubmit="createCourse(event)">
+              <div class="form-group">
+                <label for="course-code">Course Code</label>
+                <input type="text" id="course-code" placeholder="e.g. CS101" required />
+              </div>
+              <div class="form-group">
+                <label for="course-name">Course Name</label>
+                <input type="text" id="course-name" placeholder="e.g. Web Programming" required />
+              </div>
+              <div class="form-group">
+                <label for="course-credits">Credits</label>
+                <input type="number" id="course-credits" placeholder="e.g. 4" min="1" max="12" required />
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">➕ Add Course</button>
+                <button type="reset" class="btn btn-secondary">Clear</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Courses Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2><span>📋</span> All Courses</h2>
+            <button class="btn btn-secondary btn-sm" onclick="loadCourses()">🔄 Refresh</button>
+          </div>
+          <div class="card-body">
+            <div class="table-wrapper" id="courses-table-container">
+              <div class="empty-state">
+                <div class="icon">📘</div>
+                <h3>No courses yet</h3>
+                <p>Add your first course using the form</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registrations Tab -->
+    <div class="tab-content" id="tab-registrations">
+      <div class="section-grid">
+        <!-- Add Registration Form -->
+        <div class="card">
+          <div class="card-header">
+            <h2><span>✍️</span> Register Student</h2>
+          </div>
+          <div class="card-body">
+            <form id="registration-form" onsubmit="createRegistration(event)">
+              <div class="form-group">
+                <label for="reg-student-id">Student ID</label>
+                <input type="text" id="reg-student-id" placeholder="e.g. S19" required />
+              </div>
+              <div class="form-group">
+                <label for="reg-course-code">Course Code</label>
+                <select id="reg-course-code" required>
+                  <option value="">Select a course...</option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">🎓 Register</button>
+                <button type="reset" class="btn btn-secondary">Clear</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Registrations Table -->
+        <div class="card">
+          <div class="card-header">
+            <h2><span>📋</span> All Registrations</h2>
+            <button class="btn btn-secondary btn-sm" onclick="loadRegistrations()">🔄 Refresh</button>
+          </div>
+          <div class="card-body">
+            <div class="table-wrapper" id="registrations-table-container">
+              <div class="empty-state">
+                <div class="icon">🎓</div>
+                <h3>No registrations yet</h3>
+                <p>Register a student to a course</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Course Modal -->
+  <div class="modal-overlay" id="edit-course-modal">
+    <div class="modal">
+      <h3>✏️ Edit Course</h3>
+      <form onsubmit="updateCourse(event)">
+        <input type="hidden" id="edit-course-original-code" />
+        <div class="form-group">
+          <label for="edit-course-code">Course Code</label>
+          <input type="text" id="edit-course-code" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-course-name">Course Name</label>
+          <input type="text" id="edit-course-name" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-course-credits">Credits</label>
+          <input type="number" id="edit-course-credits" min="1" max="12" required />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Save</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('edit-course-modal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Registration Modal -->
+  <div class="modal-overlay" id="edit-reg-modal">
+    <div class="modal">
+      <h3>✏️ Edit Registration</h3>
+      <form onsubmit="updateRegistration(event)">
+        <input type="hidden" id="edit-reg-original-id" />
+        <div class="form-group">
+          <label for="edit-reg-student-id">Student ID</label>
+          <input type="text" id="edit-reg-student-id" required />
+        </div>
+        <div class="form-group">
+          <label for="edit-reg-course-code">Course Code</label>
+          <input type="text" id="edit-reg-course-code" required />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Save</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('edit-reg-modal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    const API = '';
+
+    // ── Toast notifications ──
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `${icons[type] || ''} ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ── Tab switching ──
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      document.getElementById(`tab-${tab}-btn`).classList.add('active');
+
+      if (tab === 'registrations') {
+        loadRegistrations();
+        loadCourseOptions();
+      } else {
+        loadCourses();
+      }
+    }
+
+    // ── Modal helpers ──
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    });
+
+    // ── Stats update ──
+    async function updateStats() {
+      try {
+        const [courses, regs] = await Promise.all([
+          fetch(`${API}/api/courses`).then(r => r.json()),
+          fetch(`${API}/api/registrations`).then(r => r.json())
+        ]);
+        document.getElementById('stat-courses').textContent = courses.length;
+        document.getElementById('stat-registrations').textContent = regs.length;
+      } catch (e) { /* ignore */ }
+    }
+
+    // ── COURSES ──
+
+    async function loadCourses() {
+      try {
+        const res = await fetch(`${API}/api/courses`);
+        const courses = await res.json();
+        const container = document.getElementById('courses-table-container');
+
+        if (courses.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">📘</div>
+              <h3>No courses yet</h3>
+              <p>Add your first course using the form</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Credits</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${courses.map(c => `
+                <tr>
+                  <td><span class="code-badge">${c.code}</span></td>
+                  <td>${c.name}</td>
+                  <td><span class="credits-badge">${c.credits}</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="btn btn-secondary btn-icon" title="Edit" onclick='openEditCourse(${JSON.stringify(c)})'>✏️</button>
+                      <button class="btn btn-danger btn-icon" title="Delete" onclick="deleteCourse('${c.code}')">🗑️</button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+        updateStats();
+      } catch (e) {
+        showToast('Failed to load courses', 'error');
+      }
+    }
+
+    async function createCourse(e) {
+      e.preventDefault();
+      const body = {
+        code: document.getElementById('course-code').value.trim(),
+        name: document.getElementById('course-name').value.trim(),
+        credits: Number(document.getElementById('course-credits').value)
+      };
+
+      try {
+        const res = await fetch(`${API}/api/courses`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+
+        showToast(`Course ${body.code} created successfully!`);
+        document.getElementById('course-form').reset();
+        loadCourses();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    function openEditCourse(course) {
+      document.getElementById('edit-course-original-code').value = course.code;
+      document.getElementById('edit-course-code').value = course.code;
+      document.getElementById('edit-course-name').value = course.name;
+      document.getElementById('edit-course-credits').value = course.credits;
+      document.getElementById('edit-course-modal').classList.add('active');
+    }
+
+    async function updateCourse(e) {
+      e.preventDefault();
+      const originalCode = document.getElementById('edit-course-original-code').value;
+      const body = {
+        code: document.getElementById('edit-course-code').value.trim(),
+        name: document.getElementById('edit-course-name').value.trim(),
+        credits: Number(document.getElementById('edit-course-credits').value)
+      };
+
+      try {
+        const res = await fetch(`${API}/api/courses/${originalCode}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+
+        showToast(`Course ${body.code} updated!`);
+        closeModal('edit-course-modal');
+        loadCourses();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function deleteCourse(code) {
+      if (!confirm(`Delete course ${code}?`)) return;
+
+      try {
+        const res = await fetch(`${API}/api/courses/${code}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+        showToast(`Course ${code} deleted`);
+        loadCourses();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // ── REGISTRATIONS ──
+
+    async function loadCourseOptions() {
+      try {
+        const res = await fetch(`${API}/api/courses`);
+        const courses = await res.json();
+        const select = document.getElementById('reg-course-code');
+        select.innerHTML = '<option value="">Select a course...</option>';
+        courses.forEach(c => {
+          select.innerHTML += `<option value="${c.code}">${c.code} — ${c.name}</option>`;
+        });
+      } catch (e) { /* ignore */ }
+    }
+
+    async function loadRegistrations() {
+      try {
+        const res = await fetch(`${API}/api/registrations`);
+        const regs = await res.json();
+        const container = document.getElementById('registrations-table-container');
+
+        if (regs.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🎓</div>
+              <h3>No registrations yet</h3>
+              <p>Register a student to a course</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Student ID</th>
+                <th>Course Code</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${regs.map(r => `
+                <tr>
+                  <td style="font-family: monospace; color: var(--text-muted); font-size: 12px;">${r.id}</td>
+                  <td><span class="code-badge">${r.studentId}</span></td>
+                  <td><span class="code-badge">${r.courseCode}</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="btn btn-secondary btn-icon" title="Edit" onclick='openEditReg(${JSON.stringify(r)})'>✏️</button>
+                      <button class="btn btn-danger btn-icon" title="Delete" onclick="deleteRegistration('${r.id}')">🗑️</button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+        updateStats();
+      } catch (e) {
+        showToast('Failed to load registrations', 'error');
+      }
+    }
+
+    async function createRegistration(e) {
+      e.preventDefault();
+      const body = {
+        studentId: document.getElementById('reg-student-id').value.trim(),
+        courseCode: document.getElementById('reg-course-code').value
+      };
+
+      try {
+        const res = await fetch(`${API}/api/registrations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+
+        showToast(`Student ${body.studentId} registered for ${body.courseCode}!`);
+        document.getElementById('registration-form').reset();
+        loadRegistrations();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    function openEditReg(reg) {
+      document.getElementById('edit-reg-original-id').value = reg.id;
+      document.getElementById('edit-reg-student-id').value = reg.studentId;
+      document.getElementById('edit-reg-course-code').value = reg.courseCode;
+      document.getElementById('edit-reg-modal').classList.add('active');
+    }
+
+    async function updateRegistration(e) {
+      e.preventDefault();
+      const originalId = document.getElementById('edit-reg-original-id').value;
+      const body = {
+        studentId: document.getElementById('edit-reg-student-id').value.trim(),
+        courseCode: document.getElementById('edit-reg-course-code').value.trim()
+      };
+
+      try {
+        const res = await fetch(`${API}/api/registrations/${originalId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+
+        showToast('Registration updated!');
+        closeModal('edit-reg-modal');
+        loadRegistrations();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function deleteRegistration(id) {
+      if (!confirm(`Delete registration ${id}?`)) return;
+
+      try {
+        const res = await fetch(`${API}/api/registrations/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+        showToast('Registration deleted');
+        loadRegistrations();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // ── Initialize ──
+    loadCourses();
+    updateStats();
+  </script>
+</body>
+</html>
